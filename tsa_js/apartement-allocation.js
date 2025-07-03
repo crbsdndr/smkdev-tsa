@@ -8,8 +8,17 @@ function solveApartement(A, B, N, M, K) {
         * @returns {number} - Maximum number of apartments that can be allocated to applicants.
     */
     
-    // YOUR CODE HERE
-
+    let ans = 0
+    for (let aplicantIdx = 0; aplicantIdx < A.length; aplicantIdx++) {
+        for (let availableIdx = 0; availableIdx < B.length; availableIdx++) {
+            if (Math.abs(A[aplicantIdx] - B[availableIdx]) <= K) {
+                ans++
+                aplicantIdx++
+            } else {
+                availableIdx++
+            }
+        }
+    }
     return ans;
 }
 
