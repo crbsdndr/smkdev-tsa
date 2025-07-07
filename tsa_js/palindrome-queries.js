@@ -17,7 +17,12 @@ class HashSegmentTree {
         * @param {number} value - The value to update at the specified index.
     */
     update(index, value) {
-        // YOUR CODE HERE
+        index += this.n
+        this.tree[index] = value % MOD
+        while (index > 1) {
+            index >>= 1
+            this.tree[index] = (this.tree[index * 2] + this.tree[index * 2 + 1]) % MOD
+        }
     }
 
     /**
@@ -27,12 +32,24 @@ class HashSegmentTree {
         * @returns {number} - The sum of values in the range [l, r].
     */
     query(l, r) {
+        if (l > r) return 0
+
         let result = 0;
         l += this.n;
-        r += this.n + 1;
-        
-        // YOUR CODE HERE
+        r += this.n;
 
+        while (l <= r) {
+            if (l & 1) {
+                result += this.tree[l] % MOD;
+                l++
+            }
+            if (!(r & 1)) {
+                result += this.tree[r] % MOD
+                r--
+            }
+            l >>= 1
+            r >>= 1
+        }
         return result;
     }
 }
