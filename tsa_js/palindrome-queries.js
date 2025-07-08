@@ -60,8 +60,10 @@ class HashSegmentTree {
     * @returns {number[]} - An array where hashPower[i] = HASH^i % MOD.
 */
 function initializeHashPowers(length) {
-    // YOUR CODE HERE
-    
+    const hashPower = [1]
+    for (let i = 1; i < length; i++) {
+        hashPower.push((hashPower[i - 1] * HASH) % MOD)
+    }
     return hashPower;
 }
 
@@ -73,8 +75,16 @@ function initializeHashPowers(length) {
     * @returns {Object} - An object containing the forward and backward hash segment trees.
 */
 function initializeHashTables(n, s, hashPower) {
-    // YOUR CODE HERE
+    const fwdHash = new HashSegmentTree(n)
+    const bckHash = new HashSegmentTree(n)
 
+    for (let i = 0; i < n; i++) {
+        const code = s.charCodeAt(i)
+        const fwdVal = (code * hashPower[i]) % MOD
+        const bckVal = (code * hashPower[n - 1 - i]) % MOD
+        fwdHash.update(i, fwdVal)
+        bckHash.update(i, bckVal)
+    }
     return { fwdHash, bckHash };
 }
 
@@ -88,7 +98,7 @@ function initializeHashTables(n, s, hashPower) {
     * @returns {string[]} - An array of results for palindrome queries ("YES" or "NO").
 */
 function processOperations(n, operations, s) {
-    // YOUR CODE HERE
+    // YOUR C
 }
 
 module.exports = {
