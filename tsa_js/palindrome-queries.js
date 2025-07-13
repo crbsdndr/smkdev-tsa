@@ -17,12 +17,14 @@ class HashSegmentTree {
         * @param {number} value - The value to update at the specified index.
     */
     update(index, value) {
-        index += this.n
-        this.tree[index] = value % MOD
+        index += this.n;
+        this.tree[index] = value % MOD;
+        
         while (index > 1) {
-            index >>= 1
-            this.tree[index] = (this.tree[index * 2] + this.tree[index * 2 + 1]) % MOD
+            index = Math.floor(index / 2);
+            this.tree[index] = (this.tree[index * 2] + this.tree[index * 2 + 1]) % MOD;
         }
+
     }
 
     /**
@@ -32,24 +34,29 @@ class HashSegmentTree {
         * @returns {number} - The sum of values in the range [l, r].
     */
     query(l, r) {
-        if (l > r) return 0
+        if (l > r) {
+            return 0;
+        }
 
         let result = 0;
         l += this.n;
         r += this.n;
 
         while (l <= r) {
-            if (l & 1) {
+            if (l % 2 === 1) {
                 result += this.tree[l] % MOD;
-                l++
+                l++;
             }
-            if (!(r & 1)) {
-                result += this.tree[r] % MOD
-                r--
+
+            if (r % 2 === 0) {
+                result += this.tree[r] % MOD;
+                r--;
             }
-            l >>= 1
-            r >>= 1
+
+            l = Math.floor(l / 2);
+            r = Math.floor(r / 2);
         }
+
         return result;
     }
 }
@@ -60,10 +67,12 @@ class HashSegmentTree {
     * @returns {number[]} - An array where hashPower[i] = HASH^i % MOD.
 */
 function initializeHashPowers(length) {
-    const hashPower = [1]
+    const hashPower = [1];
+
     for (let i = 1; i < length; i++) {
-        hashPower.push((hashPower[i - 1] * HASH) % MOD)
+        hashPower.push((hashPower[i - 1] * HASH) % MOD);
     }
+
     return hashPower;
 }
 
@@ -75,16 +84,19 @@ function initializeHashPowers(length) {
     * @returns {Object} - An object containing the forward and backward hash segment trees.
 */
 function initializeHashTables(n, s, hashPower) {
-    const fwdHash = new HashSegmentTree(n)
-    const bckHash = new HashSegmentTree(n)
+    const fwdHash = new HashSegmentTree(n);
+    const bckHash = new HashSegmentTree(n);
 
     for (let i = 0; i < n; i++) {
-        const code = s.charCodeAt(i)
-        const fwdVal = (code * hashPower[i]) % MOD
-        const bckVal = (code * hashPower[n - 1 - i]) % MOD
-        fwdHash.update(i, fwdVal)
-        bckHash.update(i, bckVal)
+        const code = s.charCodeAt(i);
+
+        const fwdVal = (code * hashPower[i]) % MOD;
+        const bckVal = (code * hashPower[n - 1 - i]) % MOD;
+
+        fwdHash.update(i, fwdVal);
+        bckHash.update(i, bckVal);
     }
+
     return { fwdHash, bckHash };
 }
 
@@ -98,46 +110,64 @@ function initializeHashTables(n, s, hashPower) {
     * @returns {string[]} - An array of results for palindrome queries ("YES" or "NO").
 */
 function processOperations(n, operations, s) {
-    const hashPowers = initializeHashPowers(n)
+    const hashPowers = initializeHashPowers(n);
 
-    let inverseHash = 1
-    let hashBase = HASH % MOD
-    let exponent = MOD - 2
+    let inverseHash = 1;
+    let hashBase = HASH % MOD;
+    let exponent = MOD - 2;
+
     while (exponent > 0) {
-        if (exponent & 1) inverseHash = (inverseHash * hashBase) % MOD
-        hashBase = (hashBase * hashBase) % MOD
-        exponent >>= 1
+        if (exponent % 2 === 1) {
+            inverseHash = (inverseHash * hashBase) % MOD;
+        }
+
+        hashBase = (hashBase * hashBase) % MOD;
+        exponent = Math.floor(exponent / 2);
+
     }
 
-    const inversePowers = [1]
+    const inversePowers = [1];
     for (let i = 1; i < n; i++) {
-        inversePowers.push((inversePowers[i - 1] * inverseHash) % MOD)
+        inversePowers.push((inversePowers[i - 1] * inverseHash) % MOD);
     }
 
     const { fwdHash, bckHash } = initializeHashTables(n, s, hashPowers);
-    const results = []
+    const results = [];
 
     for (const operation of operations) {
         if (operation[0] === 1) {
-            const updateIdx = operation[1]
-            const newChar = operation[2]
-            const charCode = newChar.charCodeAt(0)
-            const newFwdHash = (charCode * hashPowers[updateIdx]) % MOD
-            const newBckHash = (charCode * hashPowers[n - 1 - updateIdx]) % MOD
-            fwdHash.update(updateIdx, newFwdHash)
-            bckHash.update(updateIdx, newBckHash)
+            const updateIdx = operation[1];
+            const newChar = operation[2];
+            const charCode = newChar.charCodeAt(0);
+
+            const newFwdHash = (charCode * hashPowers[updateIdx]) % MOD;
+            const newBckHash = (charCode * hashPowers[n - 1 - updateIdx]) % MOD;
+
+            fwdHash.update(updateIdx, newFwdHash);
+            bckHash.update(updateIdx, newBckHash);
+
         } else if (operation[0] === 2) {
-            let left = operation[1] - 1
-            let right = operation[2] - 1
-            const forwardHash = fwdHash.query(left, right)
-            const backwardHash = bckHash.query(left, right)
-            const normalizedForward = (forwardHash * inversePowers[left]) % MOD
-            const normalizedBackward = (backwardHash * inversePowers[n - 1 - right]) % MOD
-            results.push(normalizedForward === normalizedBackward ? "YES" : "NO")
+            let left = operation[1] - 1;
+            let right = operation[2] - 1;
+
+            const forwardHash = fwdHash.query(left, right);
+            const backwardHash = bckHash.query(left, right);
+
+            const normalizedForward = (forwardHash * inversePowers[left]) % MOD;
+            const normalizedBackward = (backwardHash * inversePowers[n - 1 - right]) % MOD;
+
+            if (normalizedForward === normalizedBackward) {
+                results.push("YES");
+
+            } else {
+                results.push("NO");
+
+            }
+
         }
     }
 
-    return results
+    return results;
 }
 
 module.exports = {
