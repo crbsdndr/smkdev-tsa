@@ -17,7 +17,12 @@ class HashSegmentTree {
         * @param {number} value - The value to update at the specified index.
     */
     update(index, value) {
-        // YOUR CODE HERE
+        index += this.n
+        this.tree[index] = value % MOD
+        while (index > 1) {
+            index = Math.floor(index / 2)
+            this.tree[index] = (this.tree[index * 2] + this.tree[index * 2 + 1]) % MOD
+        }
     }
 
     /**
@@ -30,8 +35,25 @@ class HashSegmentTree {
         let result = 0;
         l += this.n;
         r += this.n + 1;
-        
-        // YOUR CODE HERE
+
+        if (l > r) {
+            return 0;
+        }
+
+        while (l < r) {
+            if (l % 2 === 1) {
+                result = (result + this.tree[l]) % MOD;
+                l++
+            }
+
+            if (r % 2 === 1) {
+                r--
+                result = (result + this.tree[r]) % MOD
+            }
+
+            l = Math.floor(l / 2)
+            r = Math.floor(r / 2)
+        }
 
         return result;
     }
@@ -43,9 +65,12 @@ class HashSegmentTree {
     * @returns {number[]} - An array where hashPower[i] = HASH^i % MOD.
 */
 function initializeHashPowers(length) {
-    // YOUR CODE HERE
-    
-    return hashPower;
+    const hashPower = [1]
+    for (let i = 1; i < length; i++) {
+        hashPower.push((hashPower[i - 1] * HASH) % MOD)
+    }
+
+    return hashPower
 }
 
 /**
