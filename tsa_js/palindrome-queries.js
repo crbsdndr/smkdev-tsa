@@ -81,8 +81,19 @@ function initializeHashPowers(length) {
     * @returns {Object} - An object containing the forward and backward hash segment trees.
 */
 function initializeHashTables(n, s, hashPower) {
-    // YOUR CODE HERE
+    const fwdHash = new HashSegmentTree(n)
+    const bckHash = new HashSegmentTree(n)
 
+    for (let i = 0; i < n; i++) {
+        const code = s.charCodeAt(i)
+    
+        const fwdVal = (code * hashPower[i]) % MOD
+        const bckVal = (code * hashPower[n - 1 - i]) % MOD
+
+        fwdHash.update(i, fwdVal)
+        bckHash.update(i, bckVal)
+    }
+    
     return { fwdHash, bckHash };
 }
 
