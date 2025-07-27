@@ -9,19 +9,19 @@ function moveDisk(diskNumber, moves, sourceStack, destinationStack, auxiliarySta
     */
     
     if (diskNumber < 1) {
-        return
+        return;
 
     }
 
     if (diskNumber === 1) {
-        moves.push([sourceStack, destinationStack])
-        return
+        moves.push([sourceStack, destinationStack]);
+        return;
 
     }
 
-    moveDisk(diskNumber - 1, moves, sourceStack, auxiliaryStack, destinationStack)
-    moves.push([sourceStack, destinationStack])
-    moveDisk(diskNumber - 1, moves, auxiliaryStack, destinationStack, sourceStack)
+    moveDisk(diskNumber - 1, moves, sourceStack, auxiliaryStack, destinationStack);
+    moves.push([sourceStack, destinationStack]);
+    moveDisk(diskNumber - 1, moves, auxiliaryStack, destinationStack, sourceStack);
 }
 
 // Function to solve Tower of Hanoi problem
@@ -29,13 +29,13 @@ function towerOfHanoi(numberOfDisks) {
     /**
         * @param {number} numberOfDisks - The total number of disks to move. Must be a positive integer.
     */
-    const moves = []
+    const moves = [];
     moveDisk(numberOfDisks, moves, 1, 3, 2);
-    
-    console.log(moves.length)
+
+    console.log(moves.length);
     for (const [from, to] of moves) {
-        console.log(from, to)
-    
+        console.log(from, to);
+
     }
     
 }
