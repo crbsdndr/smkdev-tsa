@@ -107,7 +107,53 @@ function initializeHashTables(n, s, hashPower) {
     * @returns {string[]} - An array of results for palindrome queries ("YES" or "NO").
 */
 function processOperations(n, operations, s) {
-    // YOUR CODE HERE
+    const hashPowers = initializeHashPowers(n)
+
+    let inverseHash = 1
+    let hashBase = HASH % MOD
+    let exponent = MOD - 2
+    while (exponent > 0) {
+        if (exponent % 2 === 1) {
+            inverseHash = (inverseHash * hashBase) % MOD
+        }
+        hashBase = (hashBase * hashBase) % MOD
+        exponent = Math.floor(exponent / 2)
+    }
+
+    const inversePowers = [1]
+    for (let i = 1; i < n; i++) {
+        inversePowers.push((inversePowers[i - 1] * inverseHash) % MOD)
+
+    }
+
+    const { fwdHash, bckHash } = initializeHashTables(n, s, hashPowers)
+    const results = []
+    for (const operation of operations) {
+        if (operation[0] === 1) {
+            const updateIdx = operation[1]
+            const newChar = operation[2]
+            const charCode = newChar.charCodeAt(0)
+            const newFwdHash = (charCode * hashPowers[updateIdx]) % MOD
+            const newBckHash = (charCode * hashPowers[n - 1 - updateIdx]) % MOD
+            fwdHash.update(updateIdx, newFwdHash)
+            bckHash.update(updateIdx, newBckHash)
+        } else if (operation[0] === 2) {
+            let left = operation[1] - 1
+            let right = operation[2] - 1
+            const forwardHash = fwdHash.query(left, right)
+            const backwardHash = bckHash.query(left, right)
+            const normalizedForward = (forwardHash * inversePowers[left]) % MOD
+            const normalizedBackward = (backwardHash * inversePowers[n - 1 - right]) % MOD
+            if (normalizedForward === normalizedBackward) {
+                results.push("YES")
+            } else {
+                results.push("NO")
+            }
+
+        }
+    }
+
+    return results
 }
 
 module.exports = {
